@@ -1,6 +1,6 @@
-client_id = 'XJauAx6ojQ442IOs9tlyFg'
-client_secret = 'YWJHr2B3SJTr1MF9ljElwLLSAx0hjA'
-username = 'basitcarry'
-password = 'Basit24237'
-user_agent = 'basitcarry'
-key = 'j3hra345'
+client_id = XJauAx6ojQ442IOs9tlyFg
+client_secret = YWJHr2B3SJTr1MF9ljElwLLSAx0hjA
+username = basitcarry
+password = Basit24237
+user_agent = basitcarry
+key = j3hra345
