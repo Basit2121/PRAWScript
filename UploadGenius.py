@@ -1,32 +1,31 @@
 import praw
 import random
 import time
-import pyfiglet
-from termcolor import colored
 import os
+import requests
+import sys
 
-def convert_to_word_art(text):
-    ascii_art = pyfiglet.figlet_format(text, font="slant")
-    colored_art = colored(ascii_art, "green")
-    print(colored_art)
+a = """
+                                _    _       _                 _  ____            _
+                                | | | |_ __ | | ___   __ _  __| |/ ___| ___ _ __ (_)_   _ ___ 
+                                | | | | '_ \| |/ _ \ / _` |/ _` | |  _ / _ \ '_ \| | | | / __|
+                                | |_| | |_) | | (_) | (_| | (_| | |_| |  __/ | | | | |_| \__ |
+                                 \___/| .__/|_|\___/ \__,_|\__,_|\____|\___|_| |_|_|\__,_|___/
+                                      |_|
+          """
 
-# Main program
-input_string = "UploadGenius"
-convert_to_word_art(input_string)
+print(a)
 
-desclaimer = "This is a Product of UploadGenius.\nCopyright (c) 2023 UploadGenius.\n"
+desclaimer = "\n  This is a Product of UploadGenius.\n  Copyright (c) 2023 UploadGenius.\n"
 
-colored_desclaimer= colored(desclaimer, "red")
-
-print(colored_desclaimer)
-
-import os
+print(desclaimer)
 
 # Check if Login.txt file exists
 if os.path.isfile("Login.txt"):
     print("Logged In.\n")
 
 else:
+    print("--> MAKE SURE THAT THE LOGIN INFORMATION INSIDE THE Login.txt FILE IS CORRECT BEFORE PROCEEDING.\n--> You can find The Client ID, Client Secret for you Reddit Account Here : https://youtu.be/4Lmfgw4RZCM \n")
     client_id = input("Enter client ID: ")
     client_secret = input("Enter client secret: ")
     username = input("Enter username: ")
@@ -43,14 +42,50 @@ else:
 
     print("Logged In.\n")
 
+def check_paid_users(login_file, paid_users_url):
+    # Read usernames from Login.txt
+    with open(login_file, 'r') as login_file:
+        login_content = login_file.read()
+
+    # Extract the username from Login.txt
+    username_start = login_content.find("username = '") + len("username = '")
+    username_end = login_content.find("'", username_start)
+    username = login_content[username_start:username_end]
+
+    # Download Paid_Users.txt
+    paid_users_response = requests.get(paid_users_url)
+    if paid_users_response.status_code == 200:
+        # Check if the username is present in the downloaded content
+        paid_users_content = paid_users_response.text
+        paid_users = paid_users_content.splitlines()
+
+        if username in paid_users:
+            print(f"Congratulations! The User-> {username} is a Paid User.\n")
+        else:
+            print(f"User '{username}' is not a paid user.\nPlease Purchase UploadGenius to gain access.\nPress any key to Exit.\n")
+            input()
+            sys.exit()
+    else:
+        print("Failed to Comfirm Purchase.\nPress any key to Exit.\n")
+        input()
+        sys.exit()
+
+
+# Provide the file path for Login.txt
+login_file_path = 'Login.txt'
+
+# Provide the URL for Paid_Users.txt
+paid_users_file_url = 'https://github.com/Basit2121/PRAWScript/raw/main/Paid_Users.txt'
+
+# Call the function to check if the username is present in Paid_Users.txt
+check_paid_users(login_file_path, paid_users_file_url)
+
 while True:
 
     choice1 = "ENTER 1 TO GENERATE FLAIR ID'S"
     choice2 = "ENTER 2 TO UPLOAD IMAGES TO SUBREDDIT'S"
-    colored_choice1 = colored(choice1, "green")
-    colored_choice2 = colored(choice2, "green")
-    print(colored_choice1)
-    print(colored_choice2)
+    print(choice1)
+    print(choice2)
 
     choice = input("--> ")
 
@@ -96,9 +131,9 @@ while True:
                 key_phrases = [line.strip() for line in file if line.strip()]
                 
             
-            print(colored("\n1. MAKE SURE THAT THE LOGIN INFORMATION INSIDE THE Login.txt FILE IS CORRECT BEFORE PROCEEDING.\n--> You can find The Client ID, Client Secret for you Reddit Account by Following this Link : https://youtu.be/4Lmfgw4RZCM\n2. MAKE SURE THAT THE FORMAT IN Subreddits.txt  FILE IS CORRECT.\n3. THE CORRECT FORMAT IS -> subredditname:title:flareid:imagename\n4. THE IMAGES THAT ARE TO BE UPLOADED SHOULD BE IN THE assets FOLDER AND IT should be in PNG form.\n5. The Title of the post is randomly selected from a pool of Phrases that are inside the KeyPhrases.txt file + the title that you enter in the Subreddits.txt File.\n--> You Can add more Phrases, one in each line or remove phrases that you want to remove from the pool of choices. You can also keeping the KeyPhrases.txt Empty if you do not want a random Title.\n","green"))
+            print("\n1. MAKE SURE THAT THE FORMAT IN Subreddits.txt  FILE IS CORRECT.\n2. THE CORRECT FORMAT IS -> subredditname:title:flareid:imagename\n3. THE IMAGES THAT ARE TO BE UPLOADED SHOULD BE IN THE assets FOLDER AND IT should be in PNG form.\n4. The Title of the post is randomly selected from a pool of Phrases that are inside the KeyPhrases.txt file + the title that you enter in the Subreddits.txt File.\n--> You Can add more Phrases, one in each line or remove phrases that you want to remove from the pool of choices. You can also keeping the KeyPhrases.txt Empty if you do not want a random Title.\n")
 
-            sleep_intervals = input(colored("Enter Wait time between each post (in minutes) : ","green"))
+            sleep_intervals = input("Enter Wait time between each post (in minutes) : ")
 
             # Iterate over the subreddit info
             for subreddit_info in subreddits:
@@ -120,8 +155,8 @@ while True:
 
                         # Upload the image to the subreddit
                         subreddit.submit_image(title=final_title, image_path=image_path, flair_id=flair)
-                        print(colored(f"Image uploaded to r/{subreddit_name}",'green'))
-                        print(f"Waiting for {minutes} minutes...")
+                        print(f"\nImage uploaded to r/{subreddit_name}")
+                        print(f"Waiting for {minutes} minutes...\n")
                         time.sleep(seconds)
 
                         break  # Upload successful, exit the retry loop
@@ -137,9 +172,9 @@ while True:
 
                 # If all retry attempts failed, print an error message
                 if retry_count == 5:
-                    print(colored(f"Upload failed after 5 attempts: r/{subreddit_name}",'red'))
-                    print(colored("Failed Upload Details Saved to Failed_uploads.txt",'red'))
-                    print(colored("Moving on to next subreddit...",'green'))
+                    print(f"Upload failed after 5 attempts: r/{subreddit_name}")
+                    print("Failed Upload Details Saved to Failed_uploads.txt")
+                    print("Moving on to next subreddit...")
 
                     # Save the failed upload details to a text file
                     with open("Failed_uploads.txt", "a") as file:
@@ -215,7 +250,7 @@ while True:
                     for flair in flair_info:
                         file.write(f"ID: {flair['id']} - Text: {flair['text']}\n")
 
-                print("Flair IDs appended to flair_ids.txt file.")
+                print("\nFlair IDs appended to flair_ids.txt file.\n")
 
             except praw.exceptions.RedditAPIException as e:
                 print(f"An error occurred: {e}")
@@ -227,10 +262,10 @@ while True:
         username = 'basitcarry'
         password = 'Basit24237'
         user_agent = 'basitcarry'
-        subreddit_name=input(colored("Enter Subreddit Name : ", "green"))
+        subreddit_name=input("Enter Subreddit Name : ")
 
         # Call the function to save the flair info
         save_flair_info(subreddit_name, client_id, client_secret, user_agent, username, password)
 
     elif choice != '1' or '2':
-        print(colored("Invalid Choice. Intresting...\n",'red'))
+        print("Invalid Choice. Intresting...\n")
